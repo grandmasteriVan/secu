@@ -4,6 +4,7 @@ from app.database import engine
 from app.models import Base
 from app.routers import auth, dashboard, chat, simulations, admin, leaderboard, courses
 from app.routers import certs
+from contextlib import asynccontextmanager
 
 
 # Створення таблиць при старті (Для MVP. У продакшені використовуйте Alembic)
