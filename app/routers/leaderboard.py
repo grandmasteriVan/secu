@@ -1,36 +1,19 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc # Важливий імпорт для сортування
+from typing import Annotated
+from sqlalchemy import select, desc, func # Важливий імпорт для сортування
+from sqlalchemy.orm import selectinload
 
 from app import models, schemas, database, security
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 
-@router.get(
-    "/top", 
-    response_model=list[schemas.LeaderboardEntry] # Повертаємо список записів
-)
-async def get_top_users(
-    limit: int = 10,
-    db: AsyncSession = Depends(database.get_db),
-    # Для перегляду таблиці лідерів потрібна авторизація (перевірка токена)
-    user: models.User = Depends(security.get_current_user) 
-):
-    """
-    Повертає список ТОП-користувачів, відсортованих за XP.
-    """
-    
-    # Створюємо запит:
-    # 1. Вибрати всіх користувачів (models.User)
-    # 2. Відсортувати за полем xp у порядку спадання (desc)
-    # 3. Обмежити результат до 'limit' (за замовчуванням 10)
-    stmt = (
+@router.get("/top", response_model=list[schemas.UserRead]) # Переконайтеся, що response_model вказано
+async def get_leaderboard(db: AsyncSession = Depends(database.get_db)):
+    res = await db.execute(
         select(models.User)
-        .order_by(desc(models.User.xp))
-        .limit(limit)
+        .options(selectinload(models.User.organization)) # ПРИМУСОВЕ ЗАВАНТАЖЕННЯ ОРГАНІЗАЦІЇ
+        .order_by(models.User.total_xp.desc())
+        .limit(10)
     )
-    
-    result = await db.execute(stmt)
-    
-    # Повертаємо об'єкти. FastAPI автоматично перетворить їх на схему LeaderboardEntry
-    return result.scalars().all()
+    return res.scalars().all()

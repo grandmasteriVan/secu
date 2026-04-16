@@ -1,41 +1,53 @@
-from fastapi import APIRouter, Depends
-from app import schemas, models, security
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+from typing import List # Виправлено: додано імпорт
+from app import schemas, models, database, security
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
+@router.get("/me", response_model=schemas.UserResponse)
+async def get_me(current_user: models.User = Depends(security.get_current_user)):
+    # Тепер цей маршрут доступний за адресою /api/dashboard/me
+    return current_user
+
+@router.get("/stats")
+async def get_stats(
+    db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(security.get_current_user)
+):
+    # Приклад статистики
+    return {
+        "xp": current_user.xp,
+        "role": current_user.role,
+        "full_name": current_user.full_name
+    }
+
 @router.get("/summary", response_model=schemas.DashboardStats)
-async def get_dashboard_stats(user: models.User = Depends(security.get_current_user)):
-    """
-    Генерує статистику для головного екрану користувача.
-    """
-    
-    # 1. Логіка розрахунку рівня ризику
-    # Чим більше XP (знань), тим менший ризик злому
-    if user.xp < 100:
-        risk = "Критичний 🔴"
-        risk_msg = "Пройдіть базовий курс!"
-    elif user.xp < 300:
-        risk = "Середній 🟡"
-        risk_msg = "Ввімкніть 2FA"
-    elif user.xp < 800:
-        risk = "Низький 🟢"
-        risk_msg = "Продовжуйте навчання"
-    else:
-        risk = "Захищено 🛡️"
-        risk_msg = "Ви експерт!"
+async def get_dashboard_summary(
+    db: AsyncSession = Depends(database.get_db),
+    user: models.User = Depends(security.get_current_user)
+):
+    # Кількість завершених курсів
+    res_completed = await db.execute(
+        select(func.count(models.UserCourse.id)).where(models.UserCourse.user_id == user.id)
+    )
+    completed_count = res_completed.scalar() or 0
 
-    # 2. Розрахунок прогресу (Припустимо, мета — 1000 XP)
-    MAX_XP = 1000
-    progress = int((user.xp / MAX_XP) * 100)
-    if progress > 100: progress = 100
+    # Загальна кількість курсів у системі
+    res_total = await db.execute(select(func.count(models.Course.id)))
+    total_count = res_total.scalar() or 0
 
-    # 3. Імітація кількості курсів (наприклад, кожні 200 XP = 1 курс)
-    courses_done = user.xp // 200
+    # Розрахунок місця в рейтингу (ранг)
+    res_rank = await db.execute(
+        select(func.count(models.User.id)).where(models.User.xp > user.xp)
+    )
+    rank = (res_rank.scalar() or 0) + 1
 
     return {
-        "total_xp": user.xp,
-        "risk_level": risk,
-        "progress_percent": progress,
-        "courses_completed": courses_done,
-        "next_goal": risk_msg
+        "xp": user.xp,
+        "rank": rank,
+        "completed_courses": completed_count,
+        "total_courses": total_count,
+        "recent_badges": []
     }

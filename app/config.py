@@ -4,7 +4,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     # Додаємо це поле, щоб Pydantic його прийняв
-    OPENAI_API_KEY: str = "" 
+    GEMINI_API_KEY: str = "" 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
 

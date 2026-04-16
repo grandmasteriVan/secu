@@ -3,896 +3,1031 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#111827">
-  <title>SecuLearn AI — PWA Demo</title>
+  <title>SecuLearn AI - Платформа Кібербезпеки</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
   <style>
-    /* --- VARIABLES --- */
     :root {
-      --bg: #f7f9fc; --card: #ffffff; --text: #0b1220; --muted: #6b7280;
-      --primary: #6a5cff; --primary-hover: #5a4ce5; --primary2: #10b981;
-      --stroke: #e5e7eb; --pill: #eef2ff;
-      --shadow: 0 6px 24px rgba(16,24,40,.08); --radius: 16px;
-      --ok: #16a34a; --warn: #f59e0b; --bad: #ef4444;
+      --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+      --primary: #6366f1; --primary-hover: #4f46e5; --stroke: #e2e8f0; --radius: 16px;
     }
-    :root[data-theme="dark"] {
-      --bg: #0b1220; --card: #111827; --text: #f3f6fc; --muted: #9aa4b2;
-      --primary: #8f87ff; --primary-hover: #7a72e0; --primary2: #34d399;
-      --stroke: #1f2b40; --pill: #1a2642;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #e0e0e0;
+      --muted: #9e9e9e;
+      --stroke: #333333;
+      --primary: #818cf8;
+      --primary-hover: #6366f1;
     }
-
-    /* --- RESET & BASE --- */
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0; background: var(--bg); color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    
+    body { 
+      background: var(--bg); 
+      color: var(--text);
+      font-family: 'Inter', sans-serif; 
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* --- LAYOUT COMPONENTS --- */
-    .header {
-      position: sticky; top: 0; z-index: 20; background: var(--card);
-      border-bottom: 1px solid var(--stroke);
-      padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    .form-control, .form-select {
+        background-color: var(--card) !important;
+        color: var(--text) !important;
+        border-color: var(--stroke) !important;
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; }
-    .logo-box { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; background: var(--pill); border: 1px solid var(--stroke); color: var(--primary); }
+    .form-control::placeholder {
+        color: var(--muted) !important;
+    }
+
+    [data-theme="dark"] .card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    }
+    .card { 
+      background: var(--card); border: 1px solid var(--stroke); border-radius: var(--radius);
+      padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .course-card { 
+      transition: transform 0.2s ease, box-shadow 0.2s ease; 
+      border-radius: 20px;
+    }
+    .course-card:hover { 
+      transform: translateY(-5px); 
+      box-shadow: 0 12px 24px -8px rgba(99, 102, 241, 0.3); 
+      border-color: var(--primary); 
+    }
+    [data-theme="dark"] .course-card:hover { 
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.7); 
+    }
     
-    .container {
-      padding: 20px 16px;
-      padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-      max-width: 800px; margin: 0 auto;
+    .stat-banner {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: white;
+      border: none;
+      border-radius: 24px;
+    }
+    [data-theme="dark"] .stat-banner {
+      background: linear-gradient(135deg, #4f46e5, #3730a3);
     }
 
-    /* --- UI ELEMENTS --- */
-    .section-title { font-size: 1.25rem; font-weight: 800; margin: 24px 0 12px; }
-    .card { background: var(--card); border: 1px solid var(--stroke); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 16px; }
-    .card h3 { margin: 0 0 8px; font-size: 1.1rem; font-weight: 700; }
+    .nav-bar { 
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 450px; background: var(--card); border: 1px solid var(--stroke); 
+      border-radius: 24px; display: flex; justify-content: space-around; padding: 12px; z-index: 1000;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); 
+    }
+    .nav-item { color: var(--muted); font-size: 24px; cursor: pointer; transition: 0.2s; }
+    .nav-item.active { color: var(--primary); transform: scale(1.1); }
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 500px) { .row { grid-template-columns: 1fr; } }
-
-    .btn {
-      appearance: none; border: none; background: var(--primary); color: #fff;
-      border-radius: 12px; padding: 12px 16px; font-weight: 600; cursor: pointer;
-      transition: opacity 0.2s; display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.95rem;
+    .quiz-option { 
+      cursor: pointer;
+      padding: 14px; border: 1px solid var(--stroke); 
+      border-radius: 12px; margin-bottom: 10px; transition: 0.2s;
     }
-    .btn:active { opacity: 0.8; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn.secondary { background: transparent; border: 1px solid var(--stroke); color: var(--text); }
-    .btn.block { width: 100%; }
-    .btn.sm { padding: 8px 12px; font-size: 0.85rem; min-width: auto; }
-
-    .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-    .input {
-      padding: 12px; border-radius: 12px; border: 1px solid var(--stroke);
-      background: var(--bg); color: var(--text); width: 100%; font-size: 1rem;
-      transition: border-color 0.2s;
-    }
-    .input:focus { outline: none; border-color: var(--primary); }
-
-    .progress-track { height: 8px; background: var(--pill); border-radius: 99px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary2)); transition: width 0.5s ease; }
-
-    .chip { border-radius: 99px; padding: 4px 10px; background: var(--pill); border: 1px solid var(--stroke); font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-    .chip-btn { cursor: pointer; }
+    .quiz-option:hover { background: rgba(99, 102, 241, 0.1); border-color: var(--primary); }
+    .quiz-option.selected { background: var(--primary); color: white; border-color: var(--primary); }
     
-    .text-muted { color: var(--muted); font-size: 0.9rem; }
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    
-    .flex-between { display: flex; justify-content: space-between; align-items: center; }
-    .flex-gap { display: flex; gap: 10px; flex-wrap: wrap; }
-    .flex-col { display: flex; flex-direction: column; gap: 10px; }
-
-    /* --- TAB BAR --- */
-    .tabbar {
-      position: fixed; left: 0; right: 0; bottom: 0;
-      background: var(--card); border-top: 1px solid var(--stroke);
-      padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
-      display: flex; justify-content: space-around; z-index: 50;
+    .content-box { 
+      background: rgba(0,0,0,0.03); padding: 15px;
+      border-radius: 12px; 
+      font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 20px;
     }
-    .tab {
-      flex: 1; text-align: center; font-size: 0.7rem; color: var(--muted);
-      cursor: pointer; padding: 4px 0; border-radius: 8px; transition: background 0.1s;
-    }
-    .tab:active { background: var(--pill); }
-    .tab .ico { font-size: 1.25rem; display: block; margin-bottom: 2px; }
-    .tab.active { color: var(--primary); font-weight: 700; }
-
-    /* --- UTILS --- */
-    .hidden { display: none !important; }
-    .screen { display: none; animation: fade-in 0.2s ease; }
-    .screen.active { display: block; }
-    @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
-
-    /* --- SPECIFIC --- */
-    .chat-box { height: 60vh; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
-    .chat-msg { max-width: 80%; padding: 10px 14px; border-radius: 14px; line-height: 1.4; }
-    .chat-msg.user { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 2px; }
-    .chat-msg.bot { align-self: flex-start; background: var(--pill); border: 1px solid var(--stroke); border-bottom-left-radius: 2px; }
-
-    .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; }
-    .badge-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px; background: var(--bg); border-radius: 12px; border: 1px solid var(--stroke); }
-
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .bg-ok { background: var(--ok); } .bg-warn { background: var(--warn); } .bg-bad { background: var(--bad); }
+    [data-theme="dark"] .content-box { background: rgba(255,255,255,0.05); }
     
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th { text-align: left; padding: 8px; color: var(--muted); border-bottom: 1px solid var(--stroke); }
-    td { padding: 8px; border-bottom: 1px solid var(--stroke); }
+    .theme-toggle { cursor: pointer; font-size: 20px; color: var(--primary); }
+    .badge-img { width: 50px; height: 50px; object-fit: contain; }
+
+    body.dark-mode {
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        line-height: 1.6;
+    }
+
+    .dark-mode h1, .dark-mode h2, .dark-mode h3 {
+        color: #ffffff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .dark-mode .card, .dark-mode .panel {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .dark-mode input, .dark-mode select, .dark-mode textarea {
+        background-color: #2c2c2c;
+        color: #fff;
+        border: 1px solid #444;
+    }
+
+    .dark-mode .text-muted { color: #a0a0a0 !important; }
+
+    /* Стилі повідомлень у чаті */
+    .msg {
+        margin-bottom: 1rem;
+        max-width: 85%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    .msg-user {
+        background-color: var(--primary);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+    }
+    .msg-ai {
+        background-color: var(--stroke);
+        color: var(--text);
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+    }
+    .typing {
+        font-style: italic;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 10px;
+    }
+
+    /* Глобальні стилі елементів */
+    .btn { border-radius: 50rem !important; font-weight: 500; transition: all 0.2s ease; padding: 0.5rem 1.5rem; }
+    .form-control, .form-select { border-radius: 12px !important; padding: 0.6rem 1rem; }
+    
+    /* Сучасні таблиці (для Лідерборду та Адмінки) */
+    .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .modern-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; padding: 0 16px; border: none; }
+    .modern-table td { background: var(--card); padding: 16px; border: none; vertical-align: middle; }
+    .modern-table tr { box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.2s, box-shadow 0.2s; }
+    .modern-table tbody tr:hover { transform: scale(1.01); box-shadow: 0 8px 16px rgba(0,0,0,0.08); position: relative; z-index: 1; }
+    .modern-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+    .modern-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+    
+    [data-theme="dark"] .modern-table tr { box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    [data-theme="dark"] .modern-table tbody tr:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
+
+    /* Стилі для Профілю */
+    .profile-header { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border-radius: 24px; padding: 40px 20px; margin-bottom: 24px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4); }
+    [data-theme="dark"] .profile-header { background: linear-gradient(135deg, #4f46e5, #3730a3); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5); }
+    .profile-avatar { width: 90px; height: 90px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 15px auto; backdrop-filter: blur(5px); border: 3px solid rgba(255,255,255,0.5); color: white; }
+    .stat-box { background: var(--card); border: 1px solid var(--stroke); border-radius: 20px; padding: 20px; transition: transform 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .stat-box:hover { transform: translateY(-3px); border-color: var(--primary); }
+
+    /* =========================================
+       АНІМАЦІЇ ПЕРЕХОДІВ МІЖ СТОРІНКАМИ
+       ========================================= */
+       
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page:not(.d-none) {
+        animation: fadeSlideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    /* =========================================
+       АНІМАЦІЇ ДЛЯ НИЖНЬОГО МЕНЮ (НАВІГАЦІЇ)
+       ========================================= */
+       
+    .nav-link { transition: color 0.2s ease, transform 0.2s ease; }
+    .nav-link i { display: inline-block; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .nav-link.text-primary i { transform: scale(1.25) translateY(-2px); }
+    .nav-link:hover i { transform: scale(1.15); }
+
+    /* Примусові стилі Bootstrap Dark */
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
+    [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+    [data-theme="dark"] p, [data-theme="dark"] span, [data-theme="dark"] label,
+    [data-theme="dark"] .text-dark {
+        color: var(--text) !important;
+    }
+    [data-theme="dark"] .text-muted, [data-theme="dark"] .text-secondary { color: var(--muted) !important; }
+    [data-theme="dark"] .card, [data-theme="dark"] .list-group-item,
+    [data-theme="dark"] .modal-content, [data-theme="dark"] .dropdown-menu {
+        background-color: var(--card) !important; color: var(--text) !important; border-color: var(--stroke) !important;
+    }
+    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select,
+    [data-theme="dark"] input, [data-theme="dark"] textarea {
+        background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid var(--stroke) !important;
+    }
+    [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus {
+        background-color: #333333 !important; color: #ffffff !important; border-color: var(--primary) !important;
+        box-shadow: 0 0 0 0.25rem rgba(129, 140, 248, 0.25) !important;
+    }
+    [data-theme="dark"] .btn-outline-secondary { color: var(--text); border-color: var(--stroke); }
+    [data-theme="dark"] .btn-outline-secondary:hover { background-color: var(--stroke); color: #fff; }
   </style>
 </head>
 <body>
 
-  <header class="header">
-    <div class="brand">
-      <div class="logo-box">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-      </div>
-      <span>SecuLearn</span>
-    </div>
-    <div class="flex-gap">
-      <button id="theme-btn" class="chip chip-btn">🌗</button>
-      <button id="lang-btn" class="chip chip-btn">UA</button>
+  <header class="container d-flex justify-content-between align-items-center py-3">
+    <h4 class="fw-bold m-0"><i class="bi bi-shield-lock-fill me-2"></i>SecuLearn</h4>
+    <div class="d-flex align-items-center gap-3">
+      <i class="bi bi-moon-stars-fill theme-toggle" id="theme-btn" onclick="toggleTheme()"></i>
+      <div id="top-xp" class="badge bg-primary rounded-pill d-none">0 XP</div>
     </div>
   </header>
 
-  <main class="container">
+  <main class="container mb-5 pb-5">
+    <section id="auth" class="page">
+      <div class="card mx-auto mt-4" style="max-width: 400px;">
+        <div id="login-mode">
+          <h5 class="fw-bold mb-4 text-center">Вхід у систему</h5>
+          <div class="mb-3">
+            <label class="small text-muted">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="name@company.com">
+          </div>
+          <div class="mb-4">
+            <label class="small text-muted">Пароль</label>
+            <input type="password" id="password" class="form-control" placeholder="••••••••">
+          </div>
+          <button class="btn btn-primary w-100" onclick="handleLogin()">Продовжити</button>
+          <p class="text-center mt-3 small text-muted">Немає акаунту? <a href="#" onclick="toggleAuth(true)" class="text-decoration-none">Реєстрація</a></p>
+        </div>
+        
+        <div id="reg-mode" class="d-none">
+          <h5 class="fw-bold mb-4 text-center">Створити профіль</h5>
+          <input type="text" id="r-name" class="form-control mb-3" placeholder="Ваше ім'я">
+          <input type="email" id="r-email" class="form-control mb-3" placeholder="Робочий Email">
+          <select id="r-org" class="form-select mb-3"><option value="">Оберіть організацію</option></select>
+          <input type="password" id="r-pass" class="form-control mb-3" placeholder="Придумайте пароль">
+          
+          <div class="form-check mb-4 text-start">
+              <input class="form-check-input" type="checkbox" id="agreeTerms">
+              <label class="form-check-label small text-muted" for="agreeTerms">
+                  Я погоджуюсь з умовами <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="text-primary text-decoration-none fw-bold">Ліцензійної угоди</a>
+              </label>
+          </div>
 
-    <section class="screen active" id="scr-auth">
-      <h2 class="section-title" data-i18n="authTitle">Вхід / Реєстрація</h2>
-      <div class="card">
-        <div class="row">
-          <div>
-            <div class="input-group">
-              <label class="text-muted" data-i18n="email">Email</label>
-              <input class="input" id="auth-email" type="email" placeholder="user@company.com">
-            </div>
-            <div class="input-group">
-              <label class="text-muted" data-i18n="password">Пароль</label>
-              <input class="input" id="auth-pass" type="password" placeholder="********">
-            </div>
-            <div class="flex-gap" style="margin-top: 15px;">
-              <button class="btn" onclick="fakeAuth(true)" data-i18n="signup">Створити</button>
-              <button class="btn secondary" onclick="fakeAuth(false)" data-i18n="signin">Увійти</button>
-            </div>
-          </div>
-          <div>
-            <h3 data-i18n="benefits">Переваги</h3>
-            <ul class="text-muted" style="padding-left: 20px; margin: 0;">
-              <li data-i18n="b1">Гейміфіковані курси</li>
-              <li data-i18n="b2">Gemini AI асистент</li>
-              <li data-i18n="b3">Сертифікати та бейджі</li>
-              <li data-i18n="b4">Аналітика ризиків</li>
-            </ul>
-          </div>
+          <button class="btn btn-primary w-100" onclick="handleRegister()">Зареєструватися</button>
+          <p class="text-center mt-3 small text-muted">Вже є профіль? <a href="#" onclick="toggleAuth(false)" class="text-decoration-none">Увійти</a></p>
         </div>
       </div>
     </section>
 
-    <section class="screen" id="scr-home">
-      <h2 class="section-title" data-i18n="homeTitle">Головна</h2>
+    <section id="dashboard" class="page">
+      <div class="card stat-banner mb-4 p-4 shadow-sm">
+         <div class="d-flex justify-content-between align-items-center">
+            <div>
+               <h4 class="fw-bold mb-1 text-white" id="dash-welcome">Вітаємо! 👋</h4>
+               <p class="mb-0 text-white-50 small">Готові до нових викликів з кібербезпеки?</p>
+            </div>
+            <div class="text-end">
+               <div class="bg-white bg-opacity-25 rounded-4 px-3 py-2">
+                 <h3 class="fw-bold mb-0 text-white" id="dash-xp">0 XP</h3>
+                 <small class="text-white-50 d-block" style="font-size: 0.7rem;">Ваш рейтинг</small>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-end mb-3">
+          <h5 class="fw-bold m-0">Навчальні модулі</h5>
+      </div>
       
-      <div class="row">
-        <div class="card">
-          <div class="flex-between">
-            <h3 data-i18n="progress">Мій Прогрес</h3>
-            <span class="chip" id="dash-progress-text">0%</span>
-          </div>
-          <div class="progress-track"><div class="progress-fill" id="dash-progress-bar" style="width:0%"></div></div>
-          <div class="text-muted" style="margin-top:8px; font-size:0.8rem">До наступного рівня</div>
-        </div>
-
-        <div class="card">
-          <h3 data-i18n="riskTitle">Рівень Ризику</h3>
-          <div class="flex-gap" id="dash-risk-block" style="align-items: center;">
-             <div class="status-dot bg-bad"></div>
-             <span style="font-weight: 600;">Завантаження...</span>
-          </div>
-        </div>
-      </div>
-
-      <h2 class="section-title" data-i18n="quickActions">Дії</h2>
-      <div class="card flex-gap">
-        <button class="btn" onclick="go('sim')" data-i18n="startTraining">Тренінг</button>
-        <button class="btn secondary" onclick="go('chat')" data-i18n="aiAssistant">AI Чат</button>
-        <button class="btn secondary" onclick="go('leader')">🏆 Топ</button>
-      </div>
-
-      <h2 class="section-title">Курси</h2>
-      <div id="courses-list" class="flex-col">
-        <div class="text-center text-muted">Завантаження курсів...</div>
-      </div>
+      <div id="courses-list" class="row g-4"></div>
     </section>
 
-    <section class="screen" id="scr-chat">
-      <h2 class="section-title">Gemini SecuBot</h2>
+    <section id="quiz-page" class="page">
+      <button class="btn btn-sm btn-outline-secondary mb-3" onclick="go('dashboard')"><i class="bi bi-arrow-left"></i> Назад</button>
       <div class="card">
-        <div id="chat-box" class="chat-box">
-          <div class="chat-msg bot">
-            👋 Привіт! Я SecuBot на базі Google Gemini. Запитай мене про фішинг, паролі або кібергігієну.
-          </div>
+        <h4 id="quiz-title" class="fw-bold"></h4>
+        <div id="course-content-area">
+            <div id="quiz-text-content" class="content-box"></div>
+            <button class="btn btn-primary w-100" onclick="startQuizQuestions()">Перейти до тестування</button>
         </div>
-        <div class="flex-gap" style="margin-top: 10px;">
-          <input id="chat-input" class="input" placeholder="Напишіть питання..." style="flex:1">
-          <button class="btn" onclick="sendMsg()">➤</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="screen" id="scr-sim">
-      <h2 class="section-title" data-i18n="simTitle">Симуляції</h2>
-      <div class="row">
-        <div class="card">
-          <span class="chip" style="margin-bottom:8px">Email</span>
-          <h3 data-i18n="simPhish">Фішинг Атака</h3>
-          <p class="text-muted" data-i18n="simPhishDesc">Тестова розсилка для перевірки пильності.</p>
-          <button class="btn sm secondary" onclick="toast('Запущено тестову атаку!')" data-i18n="launch">Запустити</button>
-        </div>
-        <div class="card">
-          <span class="chip" style="margin-bottom:8px">Quiz</span>
-          <h3 data-i18n="simQuiz">Бліц-тест</h3>
-          <p class="text-muted" data-i18n="simQuizDesc">Швидка перевірка знань з AI.</p>
-          <button class="btn sm secondary" onclick="go('chat')" data-i18n="startInChat">Почати</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="screen" id="scr-certs">
-      <h2 class="section-title" data-i18n="certsTitle">Мої Сертифікати</h2>
-      <div class="card">
-        <h3>Intro Security Course</h3>
-        <p class="text-muted" style="margin-bottom:12px">Видано: SecuLearn AI System</p>
-        <button class="btn block" onclick="downloadCertificate()" data-i18n="download">Завантажити PDF</button>
-      </div>
-    </section>
-
-    <section class="screen" id="scr-leader">
-      <div class="flex-between" style="margin-top: 20px;">
-        <h2 class="section-title" style="margin:0" data-i18n="leadTitle">Лідери</h2>
-        <button class="btn sm secondary" onclick="loadLeaderboard()">↻</button>
-      </div>
-      <div class="card" style="margin-top: 10px;">
-        <div id="leaderboard-list" class="flex-col">
-          <div class="text-center text-muted">Завантаження...</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="screen" id="scr-analytics">
-      <h2 class="section-title" data-i18n="analyticsTitle">Звіти</h2>
-      <div class="card">
-        <h3 data-i18n="orgAvg">Середній рівень по компанії</h3>
-        <div class="progress-track"><div class="progress-fill" style="width: 72%"></div></div>
-        <p class="text-muted" style="margin-top:10px">На основі даних 42 співробітників.</p>
-      </div>
-    </section>
-
-    <section class="screen" id="scr-admin">
-      <h2 class="section-title">Адмін-панель <span id="admin-greeting" class="text-muted" style="font-size:0.6em"></span></h2>
-      
-      <div id="admin-access-denied" class="card hidden" style="border-left: 4px solid var(--bad);">
-        Доступ заборонено. Потрібні права адміністратора.
-      </div>
-
-      <div id="admin-panel-content" class="hidden">
-        <div class="card">
-          <h3>1. Додати користувача</h3>
-          <form onsubmit="event.preventDefault(); adminAddUser();">
-            <div class="input-group">
-              <input type="email" id="admin-email" class="input" placeholder="Email" required>
+        <div id="quiz-questions-area" class="d-none">
+            <div class="progress mb-4" style="height: 8px;">
+                <div id="quiz-progress" class="progress-bar bg-primary" style="width: 0%"></div>
             </div>
-            <div class="input-group">
-              <input type="password" id="admin-password" class="input" placeholder="Пароль" required>
-            </div>
-            <div class="input-group">
-              <select id="admin-role" class="input">
-                <option value="user">User</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <button type="submit" class="btn block">Створити</button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h3>2. Призначити симуляцію</h3>
-          <form onsubmit="event.preventDefault(); adminAssignSim();">
-            <div class="row">
-               <input type="number" id="assign-user-id" class="input" placeholder="ID User" required min="1">
-               <select id="assign-sim-type" class="input">
-                  <option value="phishing">Phishing</option>
-                  <option value="quiz">Quiz</option>
-               </select>
-            </div>
-            <button type="submit" class="btn block" style="margin-top:10px">Призначити</button>
-          </form>
-        </div>
-
-        <div class="card">
-  <h3>3. Створити курс</h3>
-  <form onsubmit="event.preventDefault(); adminCreateCourse();">
-    <div class="input-group">
-      <label class="text-muted">Назва</label>
-      <input type="text" id="c-title" class="input" required>
-    </div>
-    <div class="input-group">
-      <label class="text-muted">Опис (короткий)</label>
-      <input type="text" id="c-desc" class="input" required>
-    </div>
-    <div class="input-group">
-      <label class="text-muted">Контент (HTML)</label>
-      <textarea id="c-content" class="input" rows="4" placeholder="<p>Текст лекції...</p>" required></textarea>
-    </div>
-    <div class="row">
-        <div class="input-group">
-            <label class="text-muted">XP Нагорода</label>
-            <input type="number" id="c-xp" class="input" value="100">
-        </div>
-        <div class="input-group">
-            <label class="text-muted">Файл Бейджа</label>
-            <input type="file" id="c-badge" class="input" accept="image/*" required>
-        </div>
-    </div>
-
-    <h4 style="margin: 15px 0 10px;">Питання тесту</h4>
-    <div id="questions-container" class="flex-col">
-        </div>
-    <button type="button" class="btn sm secondary" onclick="addQuestionField()" style="margin-bottom:15px; width:100%">+ Додати питання</button>
-
-    <button type="submit" class="btn block">Зберегти курс</button>
-  </form>
-</div>
-
-        <div class="card">
-           <div class="flex-between" style="margin-bottom:10px">
-              <h3>3. Користувачі</h3>
-              <button class="btn sm secondary" onclick="loadUserList()">↻</button>
-           </div>
-           <div style="overflow-x:auto;">
-              <table>
-                  <thead>
-                      <tr><th>ID</th><th>Email</th><th>Role</th><th>XP</th></tr>
-                  </thead>
-                  <tbody id="user-list-body">
-                      <tr><td colspan="4" class="text-center">Натисніть оновити</td></tr>
-                  </tbody>
-              </table>
-           </div>
+            <h5 id="q-text" class="mb-4"></h5>
+            <div id="q-options"></div>
         </div>
       </div>
     </section>
 
-    <section class="screen" id="scr-course-player">
-      <div class="header">
-        <button class="btn sm secondary" onclick="go('home')">← Назад</button>
-        <div style="font-weight:bold" id="cp-title">Назва курсу</div>
-        <div style="width:40px"></div>
-      </div>
-      <div class="container">
-        <div class="card">
-            <div id="cp-content" style="line-height: 1.6; font-size: 1rem; margin-bottom: 20px;"></div>
-            
-            <div style="background: var(--bg); padding: 15px; border-radius: 12px;">
-                <h3>✍️ Тест</h3>
-                <p id="cp-question" style="font-weight: 600; margin-bottom: 10px;"></p>
-                <div id="cp-options" class="flex-col"></div>
-                <button id="cp-submit-btn" class="btn block" style="margin-top: 15px" onclick="submitCourse()">Завершити</button>
+    <section id="chat-page" class="page">
+      <h5 class="fw-bold mb-4">SecuBot ШІ Асистент</h5>
+      <div class="card d-flex flex-column" style="height: 60vh; padding: 15px;">
+        <div id="chat-messages" class="flex-grow-1 overflow-auto mb-3 pe-2 d-flex flex-column gap-2">
             </div>
+        <div class="input-group mt-auto">
+          <input type="text" id="chat-input" class="form-control" placeholder="Задайте питання про кібербезпеку...">
+          <button class="btn btn-primary" onclick="sendChatMessage()"><i class="bi bi-send-fill"></i></button>
         </div>
       </div>
     </section>
 
-    <section class="screen" id="scr-profile">
-      <h2 class="section-title" data-i18n="profileTitle">Мій Профіль</h2>
-      
-      <div class="row">
-        <div class="card flex-col" style="align-items: center; text-align: center;">
-          <div id="profile-avatar" style="width:80px; height:80px; border-radius:50%; background: linear-gradient(135deg, var(--primary), var(--primary2)); display: grid; place-items: center; font-size: 2rem; color: #fff; font-weight: bold;">U</div>
-          <div>
-            <div id="profile-name-display" style="font-weight: 800; font-size: 1.2rem;">User</div>
-            <div id="profile-role-display" class="chip">User</div>
-          </div>
-          <div class="chip" style="margin-top:5px">XP: <span id="profile-xp">0</span></div>
+    <section id="profile" class="page">
+        <div class="profile-header">
+            <div class="profile-avatar"><i class="bi bi-person"></i></div>
+            <h4 id="p-name" class="fw-bold m-0 text-white"></h4>
+            <p id="p-email" class="text-white-50 mb-0 mt-1 small"></p>
         </div>
 
-        <div class="card">
-            <h3>Налаштування</h3>
-            <div class="input-group">
-                <label class="text-muted">Змінити ім'я</label>
-                <div class="flex-gap" style="flex-wrap: nowrap;">
-                    <input type="text" id="edit-name-input" class="input" placeholder="Ім'я">
-                    <button class="btn" onclick="updateProfile()">💾</button>
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <div class="stat-box text-center h-100">
+                    <div class="text-primary mb-2"><i class="bi bi-star-fill fs-3"></i></div>
+                    <strong id="p-xp" class="fs-4 d-block fw-bold">0 XP</strong>
+                    <small class="text-muted">Ваш досвід</small>
                 </div>
             </div>
-            <button class="btn block secondary" onclick="logout()" style="margin-top: 15px; color: var(--bad); border-color: var(--stroke);">Вийти</button>
+            <div class="col-6">
+                <div class="stat-box text-center h-100">
+                    <div class="text-success mb-2"><i class="bi bi-journal-check fs-3"></i></div>
+                    <strong id="p-completed" class="fs-4 d-block fw-bold">0</strong>
+                    <small class="text-muted">Курсів завершено</small>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <h3 class="section-title">🏆 Мої Досягнення</h3>
-      <div class="card">
-          <div id="badges-container" class="badge-grid">
-              <div class="text-muted" style="grid-column: 1/-1;">Завантаження...</div>
-          </div>
-      </div>
+        <div class="card border-0 bg-transparent p-0 shadow-none">
+            <h6 class="text-start fw-bold mb-3 px-1">Ваші досягнення</h6>
+            <div id="p-badges" class="d-flex flex-wrap gap-3"></div>
+            <button class="btn btn-outline-danger w-100 mt-4 rounded-pill fw-bold" onclick="logout()">
+                <i class="bi bi-box-arrow-right me-2"></i>Вийти з акаунта
+            </button>
+        </div>
     </section>
 
+    <section id="leaderboard" class="page">
+        <div class="d-flex align-items-center mb-4">
+            <i class="bi bi-trophy-fill text-warning fs-3 me-3"></i>
+            <h5 class="fw-bold m-0">Рейтинг гравців</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="modern-table">
+                <thead><tr><th class="text-center" style="width: 50px;">#</th><th>Гравець</th><th class="text-end">Досвід</th></tr></thead>
+                <tbody id="leader-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="admin" class="page">
+        <h5 class="fw-bold mb-4">Адміністрування</h5>
+        <ul class="nav nav-pills mb-4" id="admin-tabs">
+            <li class="nav-item"><button class="nav-link active" onclick="switchAdminTab('users')">Користувачі</button></li>
+            <li class="nav-item"><button class="nav-link" onclick="switchAdminTab('courses')">Курси</button></li>
+            <li class="nav-item"><button class="nav-link" onclick="switchAdminTab('orgs')">Організації</button></li>
+        </ul>
+        
+        <div id="admin-users-tab">
+            <div class="card p-0"><table class="table m-0">
+                <thead><tr><th>Email</th><th>Роль</th><th>Орг.</th><th>Дія</th></tr></thead>
+                <tbody id="adm-users"></tbody>
+            </table></div>
+        </div>
+
+        <div id="admin-courses-tab" class="d-none">
+            <div class="card mb-4">
+                <h6>Створити/Редагувати курс</h6>
+                <input type="text" id="c-title" class="form-control mb-2" placeholder="Назва курсу">
+                <textarea id="c-desc" class="form-control mb-2" placeholder="Короткий опис"></textarea>
+                <textarea id="c-full-content" class="form-control mb-2" style="height: 150px;" placeholder="Повний текст навчання (Markdown/Text)"></textarea>
+                <div class="row g-2 mb-2">
+                    <div class="col-6"><input type="number" id="c-xp" class="form-control" placeholder="XP за проходження"></div>
+                    <div class="col-6"><input type="file" id="c-badge" class="form-control"></div>
+                </div>
+                <div id="admin-questions-list" class="mb-3 border p-2 rounded"></div>
+                <button class="btn btn-sm btn-outline-primary mb-3" onclick="addQuestionField()">+ Додати питання</button>
+                <button class="btn btn-primary w-100" onclick="submitCourse()">Зберегти курс</button>
+            </div>
+            <div id="adm-courses-list" class="row g-2"></div>
+        </div>
+        <div id="admin-orgs-tab" class="d-none">
+            <div class="card mb-4">
+                <h6>Додати організацію</h6>
+                <div class="d-flex gap-2">
+                    <input type="text" id="new-org-name" class="form-control" placeholder="Назва компанії">
+                    <button class="btn btn-primary" onclick="createOrg()">Додати</button>
+                </div>
+            </div>
+            <div class="card p-0"><table class="table m-0">
+                <thead><tr><th>ID</th><th>Назва</th><th>Дія</th></tr></thead>
+                <tbody id="adm-orgs"></tbody>
+            </table></div>
+        </div>
+    </section>
   </main>
 
-  <nav class="tabbar">
-    <div class="tab" id="tab-auth" onclick="go('auth')"><span class="ico">🔐</span><span data-i18n="tabAuth">Вхід</span></div>
-    <div class="tab" id="tab-home" onclick="go('home')"><span class="ico">🏠</span><span data-i18n="tabHome">Головна</span></div>
-    <div class="tab" id="tab-chat" onclick="go('chat')"><span class="ico">🤖</span><span data-i18n="tabChat">Чат</span></div>
-    <div class="tab" id="tab-sim" onclick="go('sim')"><span class="ico">🎣</span><span data-i18n="tabSim">Тести</span></div>
-    <div class="tab" id="tab-certs" onclick="go('certs')"><span class="ico">📜</span><span data-i18n="tabCerts">Сертиф.</span></div>
-    <div class="tab" id="tab-leader" onclick="go('leader')"><span class="ico">🏅</span><span data-i18n="tabLead">Лідери</span></div>
-    <div class="tab" id="tab-profile" onclick="go('profile')"><span class="ico">👤</span><span data-i18n="tabProfile">Профіль</span></div>
-    <div class="tab hidden" id="tab-admin" onclick="go('admin')"><span class="ico">🛠</span><span data-i18n="tabAdmin">Адмін</span></div>
+  <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="termsModalLabel">Ліцензійна угода користувача</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-muted small pb-4">
+                <p><strong>1. Загальні положення</strong><br>
+                Ця угода регулює використання навчальної платформи SecuLearn AI. Реєструючись, ви погоджуєтесь з цими умовами. Платформа надається "як є" (as is) для освітніх цілей.</p>
+                
+                <p><strong>2. Обліковий запис та безпека</strong><br>
+                Користувач несе відповідальність за збереження конфіденційності своїх даних для входу. Забороняється передавати доступ до свого акаунту третім особам.</p>
+                
+                <p><strong>3. Взаємодія зі Штучним Інтелектом (ШІ)</strong><br>
+                Платформа використовує інтегрованого ШІ-асистента. Відповіді ШІ генеруються автоматично і можуть містити неточності. Користувач не повинен вводити в чат особисті, фінансові або конфіденційні дані третіх осіб.</p>
+                
+                <p><strong>4. Інтелектуальна власність</strong><br>
+                Усі навчальні матеріали, бейджі та дизайн є власністю розробників платформи. Забороняється їх копіювання чи розповсюдження без дозволу.</p>
+                
+                <p><strong>5. Зміна умов</strong><br>
+                Адміністрація залишає за собою право змінювати цю угоду в будь-який час. Продовження використання платформи означає згоду з новими умовами.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Зрозуміло</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <nav class="nav-bar d-none" id="main-nav">
+    <div class="nav-item active" data-page="dashboard" onclick="go('dashboard')"><i class="bi bi-grid-fill"></i></div>
+    <div class="nav-item" data-page="leaderboard" onclick="go('leaderboard')"><i class="bi bi-trophy-fill"></i></div>
+    <div class="nav-item" data-page="chat-page" onclick="go('chat-page')"><i class="bi bi-chat-dots-fill"></i></div>
+    <div class="nav-item" data-page="profile" onclick="go('profile')"><i class="bi bi-person-circle"></i></div>
+    <div id="nav-adm" class="nav-item d-none" data-page="admin" onclick="go('admin')"><i class="bi bi-shield-lock-fill"></i></div>
   </nav>
 
-<script>
-/* ---------------- CONSTANTS & STATE ---------------- */
-/*const API_URL = "http://77.42.35.171/api"; */
-const API_URL = window.location.origin + "/api";
-const L = {
-  ua: { authTitle:"Вхід / Реєстрація", email:"Email", password:"Пароль", signup:"Створити", signin:"Увійти", homeTitle:"Головна", chatTitle:"Gemini Bot", simTitle:"Симуляції", certsTitle:"Сертифікати", adminTitle:"Адмінка", profileTitle:"Профіль", b1:"Гейміфікація", b2:"Gemini AI", b3:"Сертифікати", b4:"Аналітика" },
-  en: { authTitle:"Sign In / Up", email:"Email", password:"Password", signup:"Sign Up", signin:"Sign In", homeTitle:"Home", chatTitle:"Gemini Bot", simTitle:"Simulations", certsTitle:"Certificates", adminTitle:"Admin", profileTitle:"Profile", b1:"Gamification", b2:"Gemini AI", b3:"Certificates", b4:"Analytics" }
-};
-const $ = (id) => document.getElementById(id);
-const $$ = (sel) => document.querySelectorAll(sel);
-const state = { lang:'ua', theme:'dark', route:'auth' };
-let qCount = 0;
+  <script>
+    let state = {
+        token: localStorage.getItem('token'),
+        user: null,
+        courses: [],
+        currentQuiz: null,
+        currentQIdx: 0,
+        answers: [],
+        adminQuestions: []
+    };
+    let editingCourseId = null;
 
-/* ---------------- API HELPER ---------------- */
-async function apiRequest(endpoint, method='GET', body=null, isForm=false) {
-  const headers = {};
-  const token = localStorage.getItem('sl_token');
-  if(token) headers['Authorization'] = `Bearer ${token}`;
-  
-  let opts = { method, headers };
-  if(body) {
-    if(isForm) opts.body = body;
-    else { headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
-  }
-
-  try {
-    const res = await fetch(API_URL + endpoint, opts);
-    
-    // Перевірка на HTML замість JSON (захист від помилок Nginx)
-    const contentType = res.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Сервер повернув HTML замість даних. Перевірте налаштування Nginx.");
+    // --- ФУНКЦІЯ БЕЗПЕКИ: Захист від XSS ---
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.toString().replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag])
+        );
     }
 
-    const data = await res.json();
-    if(!res.ok) throw new Error(data.detail || 'Помилка сервера');
-    return data;
-  } catch(e) {
-    console.error("API Error:", e);
-    if(e.message.includes('401')) {
-        logout();
-    } else {
-        toast(`⚠️ ${e.message}`);
-    }
-    throw e;
-  }
-}
+    function toast(msg) { alert(msg); }
 
-/* ---------------- CORE LOGIC ---------------- */
-function go(route) {
-  state.route = route;
-  
-  // Screens
-  $$('.screen').forEach(el => el.classList.remove('active'));
-  const target = $('scr-'+route) || $('scr-auth');
-  target.classList.add('active');
-
-  // Tabs
-  $$('.tab').forEach(el => el.classList.remove('active'));
-  const tab = $('tab-'+route);
-  if(tab) tab.classList.add('active');
-
-  // Load Data
-  if(route === 'home') { loadDashboard(); loadCourses(); }
-  if(route === 'admin') { loadDashboard(); loadUserList(); }
-  if(route === 'leader') loadLeaderboard();
-  if(route === 'profile') loadProfile();
-}
-
-function toast(msg) {
-  const div = document.createElement('div');
-  div.className = 'card';
-  div.style.cssText = "position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--card);padding:10px 20px;z-index:100;border:1px solid var(--primary);box-shadow:var(--shadow)";
-  div.textContent = msg;
-  document.body.appendChild(div);
-  setTimeout(() => div.remove(), 2000);
-}
-
-/* ---------------- FEATURES ---------------- */
-
-// AUTH
-async function fakeAuth(isSignup) {
-  const email = $('auth-email').value;
-  const password = $('auth-pass').value;
-  if(!email || !password) return toast("Введіть дані");
-
-  try {
-    let data;
-    if(isSignup) {
-      await apiRequest('/auth/register', 'POST', { email, password, full_name: email.split('@')[0] });
-      toast("Акаунт створено! Увійдіть.");
-    } else {
-      const fd = new FormData(); fd.append('username', email); fd.append('password', password);
-      data = await apiRequest('/auth/login', 'POST', fd, true);
-      localStorage.setItem('sl_token', data.access_token);
-      toast("Успіх!");
-      go('home');
-    }
-  } catch(e) {}
-}
-
-function logout() {
-  localStorage.removeItem('sl_token');
-  go('auth');
-}
-
-// DASHBOARD
-async function loadDashboard() {
-  const token = localStorage.getItem('sl_token');
-  if(!token) return;
-  try {
-    const user = await apiRequest('/auth/me');
-    
-    // Admin Check
-    const isAdmin = user.role === 'admin';
-    const adminTab = $('tab-admin');
-    if(adminTab) adminTab.classList.toggle('hidden', !isAdmin);
-    
-    if(state.route === 'admin') {
-       $('admin-panel-content').classList.toggle('hidden', !isAdmin);
-       $('admin-access-denied').classList.toggle('hidden', isAdmin);
+    function parseJwt(token) {
+        if (!token) return null;
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        } catch (e) { return null; }
     }
 
-    // Stats
-    const stats = await apiRequest('/dashboard/summary');
-    $('dash-progress-text').textContent = `${stats.progress_percent}%`;
-    $('dash-progress-bar').style.width = `${stats.progress_percent}%`;
-    
-    const riskEl = $('dash-risk-block');
-    let colorClass = 'bg-ok';
-    if(stats.risk_level.includes('Критичний')) colorClass = 'bg-bad';
-    else if(stats.risk_level.includes('Середній')) colorClass = 'bg-warn';
-    
-    riskEl.innerHTML = `<div class="status-dot ${colorClass}"></div><span>${stats.risk_level}</span>`;
-
-  } catch(e) {}
-}
-
-// COURSES
-async function loadCourses() {
-  const box = $('courses-list');
-  try {
-    const list = await apiRequest('/courses/');
-    box.innerHTML = '';
-    list.forEach(c => {
-       const badge = c.is_completed ? '<span class="chip bg-ok" style="color:#fff">Пройдено</span>' : `<span class="chip">+${c.xp_reward} XP</span>`;
-       const div = document.createElement('div');
-       div.className = 'card';
-       div.innerHTML = `
-         <div class="flex-between"><h3>${c.title}</h3>${badge}</div>
-         <p class="text-muted">${c.description}</p>
-         <div class="flex-between" style="margin-top:10px">
-           <span class="text-muted" style="font-size:0.8rem">🏅 ${c.badge_name}</span>
-           <button class="btn sm secondary" onclick="openCourse(${c.id})">${c.is_completed?'Ще раз':'Почати'}</button>
-         </div>
-       `;
-       box.appendChild(div);
-    });
-  } catch(e) { box.innerHTML = 'Помилка'; }
-}
-
-let currCourse = null;
-async function openCourse(id) {
-  try {
-    const data = await apiRequest(`/courses/${id}`);
-    currCourse = data.id;
-    $('cp-title').textContent = data.title;
-    $('cp-content').innerHTML = data.content;
-    
-    // Рендер питань
-    const quizContainer = $('cp-options'); // Використовуємо цей контейнер для ВСІХ питань
-    quizContainer.innerHTML = ''; // Очистити старе
-    $('cp-question').style.display = 'none'; // Ховаємо старий заголовок одного питання
-
-    data.questions.forEach((q, qIdx) => {
-        const qBlock = document.createElement('div');
-        qBlock.style.marginBottom = "20px";
-        qBlock.style.paddingBottom = "10px";
-        qBlock.style.borderBottom = "1px solid var(--stroke)";
+    async function api(path, method='GET', body=null, isForm=false) {
+        const h = {};
+        if(state.token) h['Authorization'] = `Bearer ${state.token}`;
+        if(!isForm) h['Content-Type'] = 'application/json';
         
-        let optsHTML = '';
-        q.options.forEach((optText, oIdx) => {
-            optsHTML += `
-                <label style="display:block; padding:8px; cursor:pointer;">
-                    <input type="radio" name="q_${qIdx}" value="${oIdx}"> ${optText}
-                </label>
-            `;
+        const r = await fetch(`/api${path}`, { 
+            method, 
+            headers: h, 
+            body: isForm ? body : (body ? JSON.stringify(body) : null) 
         });
-
-        qBlock.innerHTML = `
-            <p style="font-weight:700; margin-bottom:8px">${qIdx + 1}. ${q.question}</p>
-            <div>${optsHTML}</div>
-        `;
-        quizContainer.appendChild(qBlock);
-    });
-    
-    $('cp-submit-btn').disabled = false;
-    $('cp-submit-btn').textContent = data.is_completed ? "Пройти повторно" : "Завершити курс";
-    go('course-player');
-  } catch(e) { console.error(e); toast("Помилка відкриття курсу"); }
-}
-
-async function submitCourse() {
-    // Збираємо всі відповіді
-    const quizContainer = $('cp-options');
-    const questions = quizContainer.children; // div.qBlock
-    const answers = [];
-    
-    for (let i = 0; i < questions.length; i++) {
-        const selected = document.querySelector(`input[name="q_${i}"]:checked`);
-        if (!selected) {
-            toast(`Дайте відповідь на питання #${i+1}`);
-            return;
+        
+        if(!r.ok) {
+            const err = await r.json().catch(() => ({detail: 'Помилка'}));
+            if(r.status === 401) logout();
+            throw err.detail || 'Помилка запиту';
         }
-        answers.push(parseInt(selected.value));
+        return r.json();
     }
 
-    $('cp-submit-btn').disabled = true;
+    // --- НАВІГАЦІЯ ТА ТЕМИ ---
+    function toggleTheme() {
+        const html = document.documentElement;
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateThemeIcon(next);
+    }
     
-    try {
-        // Відправляємо масив відповідей: { answers: [0, 1, 3] }
-        const res = await apiRequest(`/courses/${currCourse}/complete`, 'POST', { answers: answers });
+    function updateThemeIcon(theme) {
+        document.getElementById('theme-btn').className = theme === 'dark' ? 'bi bi-moon-stars-fill theme-toggle' : 'bi bi-sun-fill theme-toggle';
+    }
+
+    function go(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.page === pageId));
         
-        if(res.success) {
-           toast(`🎉 Вітаємо! +${res.xp_gained} XP`);
-           go('home');
-           loadDashboard(); // Оновити XP
+        if(pageId === 'dashboard') loadDash();
+        if(pageId === 'profile') loadProfile();
+        if(pageId === 'leaderboard') loadLeader();
+        if(pageId === 'admin') loadAdmin();
+        if(pageId === 'chat-page') loadChat();
+    }
+
+    // --- АВТОРИЗАЦІЯ ---
+    function toggleAuth(isReg) {
+        document.getElementById('login-mode').classList.toggle('d-none', isReg);
+        document.getElementById('reg-mode').classList.toggle('d-none', !isReg);
+        if(isReg) loadOrgsForSelect();
+    }
+
+    async function loadOrgsForSelect() {
+        try {
+            const orgs = await api('/auth/organizations');
+            document.getElementById('r-org').innerHTML = '<option value="">Оберіть організацію</option>' + 
+                orgs.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if (!email || !password) return toast("Введіть дані");
+        
+        const params = new URLSearchParams();
+        params.append('username', email);
+        params.append('password', password);
+        
+        try {
+            const res = await fetch('/api/auth/login', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            });
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                return toast(errorData.detail || "Помилка входу");
+            }
+
+            const data = await res.json();
+            if (data.access_token) {
+                localStorage.setItem('token', data.access_token);
+                location.reload();
+            } else {
+                toast("Токен не отримано");
+            }
+        } catch (e) { 
+            console.error(e);
+            toast("Помилка з'єднання з сервером");
+        }
+    }
+
+    async function handleRegister() {
+        // Перевірка згоди з Ліцензійною угодою перед реєстрацією
+        const termsChecked = document.getElementById('agreeTerms').checked;
+        if (!termsChecked) {
+            return toast("Будь ласка, погодьтеся з Ліцензійною угодою перед реєстрацією.");
+        }
+
+        const body = {
+            email: document.getElementById('r-email').value,
+            password: document.getElementById('r-pass').value,
+            full_name: document.getElementById('r-name').value,
+            organization_id: parseInt(document.getElementById('r-org').value)
+        };
+        try {
+            await api('/auth/register', 'POST', body);
+            toast("Реєстрація успішна! Чекайте активації.");
+            toggleAuth(false);
+        } catch(e) { toast(e); }
+    }
+
+    // --- ДЕШБОРД ТА КУРСИ ---
+    async function loadDash() {
+        try {
+            if (state.user) {
+                const firstName = state.user.full_name.split(' ')[0];
+                document.getElementById('dash-welcome').innerText = `Привіт, ${firstName}! 👋`;
+                document.getElementById('dash-xp').innerText = `${state.user.xp} XP`;
+            }
+
+            const courses = await api('/courses/');
+            const container = document.getElementById('courses-list');
+            
+            if (courses.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+                        <p>Курсів поки немає. Загляніть сюди пізніше!</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = courses.map(c => `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card course-card h-100 p-0 overflow-hidden d-flex flex-column">
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge ${c.is_completed ? 'bg-success-subtle text-success' : 'bg-primary-subtle text-primary'} px-3 py-2 rounded-pill">
+                            ${c.is_completed ? 'Завершено' : 'Доступно'}
+                        </span>
+                        <div class="text-primary fw-bold"><i class="bi bi-lightning-charge-fill"></i> ${c.xp_reward} XP</div>
+                        </div>
+                        <h5 class="card-title fw-bold mb-2">${c.title}</h5>
+                        <p class="text-muted small mb-4">${c.description}</p>
+                        
+                        <div class="d-flex gap-2 mt-auto">
+                        <button class="btn ${c.is_completed ? 'btn-outline-secondary' : 'btn-primary'} flex-grow-1 rounded-pill fw-medium" 
+                                onclick="startCourse(${c.id})">
+                            ${c.is_completed ? 'Повторити' : 'Почати'}
+                        </button>
+                        
+                        ${c.is_completed ? `
+                            <button class="btn btn-success rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                                    style="width: 42px; height: 42px;" 
+                                    onclick="downloadCertificate(${c.id})" 
+                                    title="Завантажити сертифікат">
+                            <i class="bi bi-patch-check-fill"></i>
+                            </button>
+                        ` : ''}
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                `).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    async function downloadCertificate(courseId) {
+        try {
+            const response = await fetch(`/api/certificates/download/${courseId}`, {
+                headers: { 'Authorization': `Bearer ${state.token}` }
+            });
+            
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || "Помилка завантаження");
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Certificate_Course_${courseId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+            toast("Сертифікат успішно завантажено!");
+        } catch (e) {
+            toast("Помилка: " + e.message, "danger");
+        }
+    }
+
+    async function startCourse(id) {
+        try {
+            state.currentQuiz = await api(`/courses/${id}`);
+            document.getElementById('quiz-title').innerText = state.currentQuiz.title;
+            document.getElementById('quiz-text-content').innerText = state.currentQuiz.content;
+            document.getElementById('course-content-area').classList.remove('d-none');
+            document.getElementById('quiz-questions-area').classList.add('d-none');
+            go('quiz-page');
+        } catch(e) { toast(e); }
+    }
+
+    function startQuizQuestions() {
+        document.getElementById('course-content-area').classList.add('d-none');
+        document.getElementById('quiz-questions-area').classList.remove('d-none');
+        state.currentQIdx = 0;
+        state.answers = [];
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = state.currentQuiz.questions[state.currentQIdx];
+        document.getElementById('q-text').innerText = q.question;
+        document.getElementById('quiz-progress').style.width = `${(state.currentQIdx / state.currentQuiz.questions.length) * 100}%`;
+        
+        const opts = document.getElementById('q-options');
+        opts.innerHTML = q.options.map((o, i) => `
+            <div class="quiz-option" onclick="selectAnswer(${i})">${o}</div>
+        `).join('');
+    }
+
+    async function selectAnswer(idx) {
+        state.answers.push(idx);
+        if(state.currentQIdx < state.currentQuiz.questions.length - 1) {
+            state.currentQIdx++;
+            showQuestion();
         } else {
-           toast("❌ " + res.message); // "Помилка у питанні №2..."
-           $('cp-submit-btn').disabled = false;
+            await submitResults();
         }
-    } catch(e) { 
-        $('cp-submit-btn').disabled = false; 
-    }
-}
-
-// CHAT (GEMINI)
-async function sendMsg() {
-  const inp = $('chat-input');
-  const txt = inp.value.trim();
-  if(!txt) return;
-  
-  const box = $('chat-box');
-  box.innerHTML += `<div class="chat-msg user">${txt}</div>`;
-  inp.value = '';
-  box.scrollTop = box.scrollHeight;
-
-  try {
-    const res = await apiRequest('/secubot/message', 'POST', { text: txt });
-    box.innerHTML += `<div class="chat-msg bot">🤖 ${res.reply}</div>`;
-  } catch(e) {
-    box.innerHTML += `<div class="chat-msg bot" style="color:red">Помилка AI</div>`;
-  }
-  box.scrollTop = box.scrollHeight;
-}
-
-// PROFILE
-async function loadProfile() {
-  try {
-    const u = await apiRequest('/auth/me');
-    $('profile-name-display').textContent = u.full_name || u.email.split('@')[0];
-    $('profile-role-display').textContent = u.role;
-    $('profile-xp').textContent = u.xp;
-    $('edit-name-input').value = u.full_name || "";
-    
-    const initials = (u.full_name || "U").charAt(0).toUpperCase();
-    $('profile-avatar').textContent = initials;
-
-    // Badges
-    const badges = await apiRequest('/courses/my/badges');
-    const box = $('badges-container');
-    box.innerHTML = '';
-
-    if (badges.length === 0) {
-        box.innerHTML = '<div class="text-muted">Ще немає бейджів</div>';
     }
 
-    badges.forEach(b => {
-      const div = document.createElement('div');
-      div.className = 'badge-item';
-      // Використовуємо image_url з бекенду. 
-      // Якщо b.image_url порожній, ставимо дефолтну іконку
-      const imgPath = b.image_url ? b.image_url : ''; 
-      
-      div.innerHTML = `
-        <img src="${API_URL}${imgPath}" style="width:40px; height:40px; object-fit:contain;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/190/190411.png'">
-        <div style="font-size:0.75rem; font-weight:bold; margin-top:5px;">${b.name}</div>
-      `;
-      box.appendChild(div);
-    });
-
-  } catch(e) {}
-}
-
-async function updateProfile() {
-  const name = $('edit-name-input').value;
-  if(!name) return;
-  try {
-    await apiRequest('/auth/profile', 'PUT', { full_name: name });
-    toast("Збережено");
-    loadProfile();
-  } catch(e) {}
-}
-
-// LEADERBOARD
-async function loadLeaderboard() {
-  const box = $('leaderboard-list');
-  try {
-    const list = await apiRequest('/leaderboard/top');
-    box.innerHTML = '';
-    list.forEach((u, i) => {
-       const row = document.createElement('div');
-       row.className = 'flex-between card';
-       row.style.marginBottom = '8px';
-       row.style.padding = '10px';
-       let icon = `#${i+1}`;
-       if(i===0) icon='🥇'; if(i===1) icon='🥈'; if(i===2) icon='🥉';
-       
-       row.innerHTML = `
-         <div class="flex-gap" style="align-items:center">
-            <span style="font-weight:bold; width:24px">${icon}</span>
-            <span>${u.full_name || u.email.split('@')[0]}</span>
-         </div>
-         <span class="chip">${u.xp} XP</span>
-       `;
-       box.appendChild(row);
-    });
-  } catch(e) { box.innerHTML='Error'; }
-}
-
-// CERTIFICATE
-async function downloadCertificate() {
-  toast("Генерація PDF...");
-  try {
-    const token = localStorage.getItem('sl_token');
-    const res = await fetch(API_URL + '/certificates/download/test', { headers: {'Authorization':`Bearer ${token}`} });
-    if(!res.ok) throw new Error("Err");
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download="Cert.pdf"; document.body.appendChild(a); a.click(); a.remove();
-  } catch(e) { toast("Помилка"); }
-}
-
-// ADMIN
-async function adminAddUser() {
-  const email = $('admin-email').value;
-  const password = $('admin-password').value;
-  const role = $('admin-role').value;
-  try {
-     await apiRequest('/admin/users', 'POST', {email, password, role});
-     toast("Створено");
-     loadUserList();
-  } catch(e) {}
-}
-
-async function loadUserList() {
-  const tbody = $('user-list-body');
-  try {
-    const users = await apiRequest('/admin/users');
-    tbody.innerHTML = '';
-    users.forEach(u => {
-      tbody.innerHTML += `<tr><td>${u.id}</td><td>${u.email}</td><td>${u.role}</td><td>${u.xp}</td></tr>`;
-    });
-  } catch(e) { tbody.innerHTML='<tr><td colspan="4">Помилка</td></tr>'; }
-}
-
-// INIT
-$('#theme-btn').onclick = () => {
-  state.theme = state.theme==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-theme', state.theme);
-};
-if(localStorage.getItem('sl_token')) go('home');
-
-
-//курси
-
-
-function addQuestionField() {
-    qCount++;
-    const container = document.getElementById('questions-container');
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.style.background = 'var(--bg)';
-    div.style.padding = '10px';
-    div.innerHTML = `
-        <div class="flex-between">
-            <strong>Питання #${qCount}</strong>
-            <button type="button" class="btn sm secondary" style="color:var(--bad);border-color:var(--bad)" onclick="this.parentElement.parentElement.remove()">Видалити</button>
-        </div>
-        <input type="text" class="input q-text" placeholder="Текст питання" style="margin: 5px 0" required>
-        
-        <div class="text-muted" style="font-size:0.8em">Варіанти (через кому):</div>
-        <input type="text" class="input q-opts" placeholder="Так, Ні, Не знаю" required>
-        
-        <div class="text-muted" style="font-size:0.8em">Індекс правильного (починаючи з 0):</div>
-        <input type="number" class="input q-correct" placeholder="0" min="0" required>
-    `;
-    container.appendChild(div);
-}
-
-async function adminCreateCourse() {
-    const title = $('c-title').value;
-    const desc = $('c-desc').value;
-    const content = $('c-content').value;
-    const xp = $('c-xp').value;
-    const badgeFile = $('c-badge').files[0];
-    
-    // Збираємо питання
-    const qElements = document.querySelectorAll('#questions-container > div');
-    const questions = [];
-    
-    qElements.forEach(el => {
-        const text = el.querySelector('.q-text').value;
-        const optsRaw = el.querySelector('.q-opts').value;
-        const correct = parseInt(el.querySelector('.q-correct').value);
-        
-        // Розбиваємо варіанти по комі
-        const options = optsRaw.split(',').map(s => s.trim()).filter(s => s);
-        
-        questions.push({
-            question: text,
-            options: options,
-            correct: correct
-        });
-    });
-
-    if(questions.length === 0) return toast("Додайте хоча б одне питання!");
-    if(!badgeFile) return toast("Виберіть картинку!");
-
-    // Формуємо FormData
-    const fd = new FormData();
-    fd.append('title', title);
-    fd.append('description', desc);
-    fd.append('content', content);
-    fd.append('xp_reward', xp);
-    fd.append('questions_json', JSON.stringify(questions));
-    fd.append('badge_file', badgeFile);
-
-    try {
-        const btn = event.target.querySelector('button[type="submit"]');
-        btn.disabled = true; btn.textContent = "Завантаження...";
-        
-        await apiRequest('/admin/courses', 'POST', fd, true); // true = isForm
-        toast("Курс створено успішно!");
-        
-        // Очистка
-        event.target.reset();
-        document.getElementById('questions-container').innerHTML = '';
-        qCount = 0;
-        loadCourses(); // Оновити список на головній
-    } catch (e) {
-        console.error(e);
-    } finally {
-        const btn = event.target.querySelector('button[type="submit"]');
-        if(btn) { btn.disabled = false; btn.textContent = "Зберегти курс"; }
+    async function submitResults() {
+        try {
+            const res = await api(`/courses/${state.currentQuiz.id}/complete`, 'POST', { answers: state.answers });
+            toast(`Результат: ${res.message}. Отримано ${res.xp_gained} XP!`);
+            go('dashboard');
+        } catch(e) { toast(e); }
     }
-}
-</script>
+
+    // --- ПРОФІЛЬ ТА РЕЙТИНГ ---
+    async function loadProfile() {
+        try {
+            const u = await api('/auth/me');
+            const summary = await api('/dashboard/summary');
+            
+            document.getElementById('p-name').innerText = u.full_name;
+            document.getElementById('p-email').innerText = u.email;
+            document.getElementById('p-xp').innerText = `${u.xp} XP`;
+            
+            document.getElementById('p-completed').innerText = summary.completed_courses;
+            document.getElementById('top-xp').innerText = `${u.xp} XP`;
+            document.getElementById('top-xp').classList.remove('d-none');
+            
+            const badgesData = await api('/courses/my/badges');
+            const bArea = document.getElementById('p-badges');
+            
+            if (badgesData.length === 0) {
+                bArea.innerHTML = '<div class="text-center w-100 p-4 text-muted border rounded-4 border-dashed"><i class="bi bi-award fs-1 opacity-50 d-block mb-2"></i>У вас ще немає бейджів. Пройдіть свій перший курс!</div>';
+            } else {
+                bArea.innerHTML = badgesData.map(b => `
+                    <div class="text-center p-3 rounded-4 border stat-box flex-fill" title="${b.name}" style="min-width: 100px;">
+                        <img src="${b.image_url}" class="badge-img d-block mx-auto mb-2" style="width: 50px; height: 50px;">
+                        <small class="fw-bold d-block text-truncate" style="max-width: 120px; margin: 0 auto; font-size: 0.75rem;">${b.name}</small>
+                    </div>
+                `).join('');
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    async function loadLeader() {
+        try {
+            const users = await api('/leaderboard/top');
+            const body = document.getElementById('leader-body');
+            body.innerHTML = users.map((u, i) => {
+                let rankVisual = `<span class="text-muted fw-bold">${i + 1}</span>`;
+                if (i === 0) rankVisual = `<span class="fs-3" title="1 Місце">🥇</span>`;
+                else if (i === 1) rankVisual = `<span class="fs-4" title="2 Місце">🥈</span>`;
+                else if (i === 2) rankVisual = `<span class="fs-5" title="3 Місце">🥉</span>`;
+
+                const safeName = escapeHTML(u.full_name);
+                const safeOrg = escapeHTML(u.organization || 'Без організації');
+                const initial = safeName ? safeName.charAt(0).toUpperCase() : '?';
+
+                return `
+                <tr>
+                    <td class="text-center">${rankVisual}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 42px; height: 42px; font-size: 1.1rem;">
+                                ${initial}
+                            </div>
+                            <div>
+                                <strong class="d-block text-body">${u.full_name}</strong>
+                                <small class="text-muted" style="font-size: 0.75rem;">${u.organization || 'Без організації'}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                        <span class="badge ${i < 3 ? 'bg-primary' : 'bg-secondary bg-opacity-25 text-body'} rounded-pill px-3 py-2 fs-6">
+                            ${u.xp} XP
+                        </span>
+                    </td>
+                </tr>
+            `}).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    // --- АДМІНКА ---
+    function switchAdminTab(tab) {
+        document.getElementById('admin-users-tab').classList.toggle('d-none', tab !== 'users');
+        document.getElementById('admin-orgs-tab').classList.toggle('d-none', tab !== 'orgs');
+        document.getElementById('admin-courses-tab').classList.toggle('d-none', tab !== 'courses');
+        if(tab === 'orgs') loadAdminOrgs();
+        if(tab === 'courses') loadAdminCourses();
+    }
+
+    async function loadAdminOrgs() {
+        try {
+            const orgs = await api('/admin/organizations');
+            document.getElementById('adm-orgs').innerHTML = orgs.map(o => `
+                <tr>
+                    <td>${o.id}</td>
+                    <td>${o.name}</td>
+                    <td><button class="btn btn-sm btn-outline-danger" onclick="deleteOrg(${o.id})">Видалити</button></td>
+                </tr>
+            `).join('');
+        } catch(e) { toast(e); }
+    }
+
+    async function createOrg() {
+        const name = document.getElementById('new-org-name').value;
+        if(!name) return;
+        try {
+            await api('/admin/organizations', 'POST', { name });
+            document.getElementById('new-org-name').value = '';
+            loadAdminOrgs();
+            toast("Організацію додано");
+        } catch(e) { toast(e); }
+    }
+
+    async function deleteOrg(id) {
+        if(!confirm("Видалити організацію?")) return;
+        try {
+            await api(`/admin/organizations/${id}`, 'DELETE');
+            loadAdminOrgs();
+        } catch(e) { toast(e); }
+    }
+
+    async function loadAdmin() {
+        try {
+            const users = await api('/admin/users');
+            const orgs = await api('/auth/organizations');
+
+
+
+            document.getElementById('adm-users').innerHTML = users.map(u => `
+                <tr>
+                    <td class="small">${escapeHTML(u.email)}</td>
+                    <td><span class="badge bg-secondary">${u.role}</span></td>
+                    <td>
+                        <select onchange="updateUserOrg(${u.id}, this.value)" class="form-select form-select-sm">
+                            <option value="">Без організації</option>
+                            ${orgs.map(o => `<option value="${o.id}" ${u.organization_id==o.id?'selected':''}>${o.name}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm ${u.is_active?'btn-warning':'btn-success'}" onclick="actUser(${u.id}, ${!u.is_active})">
+                            ${u.is_active?'Block':'Approve'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    async function actUser(id, active) {
+        await api(`/admin/users/${id}/activate`, 'POST');
+        loadAdmin();
+    }
+
+    async function updateUserOrg(userId, orgId) {
+        toast("Зміна організації не реалізована у наданому коді бекенду");
+    }
+
+    function addQuestionField(qData = {question: '', options: ['', '', '', ''], correct: 0}) {
+        const id = Date.now();
+        const div = document.createElement('div');
+        div.className = 'border p-2 mb-2 position-relative rounded';
+        div.id = `q-f-${id}`;
+        div.innerHTML = `
+            <input type="text" class="form-control form-control-sm mb-1 q-text" placeholder="Питання" value="${qData.question}">
+            <div class="row g-1">
+                ${qData.options.map((o, i) => `
+                    <div class="col-6 d-flex align-items-center">
+                        <input type="radio" name="correct-${id}" ${qData.correct==i?'checked':''} value="${i}">
+                        <input type="text" class="form-control form-control-sm ms-1 q-opt" placeholder="Варіант ${i+1}" value="${o}">
+                    </div>
+                `).join('')}
+            </div>
+            <button class="btn btn-sm btn-danger mt-1" onclick="this.parentElement.remove()">Видалити</button>
+        `;
+        document.getElementById('admin-questions-list').appendChild(div);
+    }
+
+    async function submitCourse() {
+        const qDivs = document.querySelectorAll('#admin-questions-list > div');
+        const questions = Array.from(qDivs).map(div => ({
+            question: div.querySelector('.q-text').value,
+            options: Array.from(div.querySelectorAll('.q-opt')).map(i => i.value),
+            correct: parseInt(div.querySelector('input[type="radio"]:checked').value)
+        }));
+        
+        const fd = new FormData();
+        fd.append('title', document.getElementById('c-title').value);
+        fd.append('description', document.getElementById('c-desc').value);
+        fd.append('content', document.getElementById('c-full-content').value);
+        fd.append('xp_reward', document.getElementById('c-xp').value);
+        fd.append('questions_json', JSON.stringify(questions));
+        
+        const file = document.getElementById('c-badge').files[0];
+        if(file) fd.append('badge_file', file);
+
+        const url = editingCourseId ? `/admin/courses/${editingCourseId}` : '/admin/courses';
+        try {
+            await api(url, editingCourseId ? 'PUT' : 'POST', fd, true);
+            toast("Збережено!");
+            location.reload();
+        } catch(e) { toast(e); }
+    }
+
+    async function loadAdminCourses() {
+        const courses = await api('/courses/');
+        document.getElementById('adm-courses-list').innerHTML = courses.map(c => `
+            <div class="col-12 card p-2 d-flex flex-row justify-content-between mb-2">
+                <span>${c.title}</span>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse(${c.id})">Видалити</button>
+            </div>
+        `).join('');
+    }
+
+    async function deleteCourse(id) {
+        if(confirm('Видалити курс?')) {
+            toast("Видалення курсів ще не імплементовано на бекенді");
+        }
+    }
+
+    // --- ЧАТ ШІ ---
+    async function sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        const container = document.getElementById('chat-messages');
+        const text = input.value.trim();
+        
+        if (!text) return;
+        
+        appendMessage('user', text);
+        input.value = '';
+        
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.id = typingId;
+        typingDiv.className = 'typing';
+        typingDiv.innerText = 'SecuAI друкує...';
+        container.appendChild(typingDiv);
+        container.scrollTop = container.scrollHeight;
+
+        try {
+            const data = await api('/chat/send', 'POST', { message: text });
+            document.getElementById(typingId).remove();
+            appendMessage('ai', data.reply);
+        } catch (e) {
+            if (document.getElementById(typingId)) document.getElementById(typingId).remove();
+            toast("Помилка чату: " + e);
+            console.error(e);
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = `msg ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+        div.innerText = text;
+        container.appendChild(div);
+        
+        container.scrollTop = container.scrollHeight;
+    }
+
+    async function loadChat() {
+        const container = document.getElementById('chat-messages');
+        if (container.children.length === 0) {
+            appendMessage('ai', 'Вітаю! Я ваш асистент з кібербезпеки. Чим можу допомогти сьогодні?');
+        }
+    }
+
+    // --- ІНІЦІАЛІЗАЦІЯ ---
+    async function init() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        updateThemeIcon(theme);
+
+        if(!state.token) return go('auth');
+
+        document.getElementById('main-nav').classList.remove('d-none');
+        try {
+            state.user = await api('/auth/me');
+            if(state.user.role === 'admin') document.getElementById('nav-adm').classList.remove('d-none');
+            go('dashboard');
+        } catch(e) { logout(); }
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const chatInput = document.getElementById('chat-input');
+        if(chatInput) {
+            chatInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+        }
+    });
+
+    init();
+  </script>
 </body>
 </html>
